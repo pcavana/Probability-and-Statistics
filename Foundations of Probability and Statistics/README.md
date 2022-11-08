@@ -10,6 +10,7 @@ Technologies:
 
 - R
 - Rstudio
+- R Markdown
 
 ## Contributing Members
 
