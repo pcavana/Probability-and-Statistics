@@ -70,7 +70,11 @@ BMI range (kg/m2).
 - install.packages("wesanderson")
 - install.packages("modest")
 - install.packages("MASS")
-- install.packages("summarytools")
+- install.packages("dplyr")
+- install.packages("caret")
+- install.packages("tidyverse")
+- install.packages("patchwork")
+- install.packages("ggforce")
 
 ```{r}
 library(ggplot2) 
@@ -80,8 +84,13 @@ library(RColorBrewer)
 library(wesanderson) 
 library(modest)
 library(MASS)
-library(summarytools)
+library(dplyr)
+library(caret)
+library(tidyverse)
+library(patchwork)
+library(ggforce)
 ```
+
 
 # Data Exploration
 
@@ -123,6 +132,8 @@ We can observe that 2 variables are of type 'numeric', 3 variables are of type '
 
 We know that the typology 'integer' constitutes a subclass of the typology 'numeric', and has the characteristic to occupy less space in memory.
 
+
+
 At this point we verify the presence of null or missing values.
 
 ```{r}
@@ -131,12 +142,10 @@ insurance[rowSums(is.na(insurance)) > 0, ]
 
 The result of this function does not return lines, therefore inside the dataset there are no null or missing values.
 
+
 # Descriptive Statistics
 
 Let’s proceed with the descriptive analysis of the dataset. 
-```{r} 
-dfSummary(insurance) 
-```
 
 ```{r} 
 summary(insurance) 
@@ -175,6 +184,28 @@ ggarrange(Charges1, Charges2,
           ncol = 2,
           nrow = 1)
 ```
+
+```{r}
+p2<-ggplot(insurance, aes(x=sex, y=charges)) +
+geom_boxplot(fill=c('hotpink', "royalblue"))+
+stat_summary(fun=mean, geom="point", color="blue")+
+coord_flip()
+
+p3<-ggplot(insurance, aes(x=smoker, y=charges)) +
+geom_boxplot(fill=c('grey', "gold"))+
+stat_summary(fun=mean, geom="point", color="blue")+
+coord_flip()
+
+p4<-ggplot(insurance, aes(x=region, y=charges)) +
+geom_boxplot(fill=c('tan1', "tan2", 'tan3', "tan4"))+
+stat_summary(fun=mean, geom="point", color="blue")+
+coord_flip()
+
+ggarrange(p2, p3, p4,
+          ncol = 1,
+          nrow = 1)
+```
+
 
 ```{r}
 ordered_Charges <- insurance[order(-insurance$charges), ]
@@ -218,6 +249,71 @@ ggarrange(Age1, Age2, Age3, Age4,
           nrow = 2)
 ```
 
+#### age & sex, charges
+```{r}
+as1<-ggplot(insurance, aes(x=sex, y=age, color=sex)) +
+geom_sina()+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+labs(title="Age Distribution by sex")+
+theme(plot.title = element_text(size=14))
+
+as2<-ggplot(insurance, aes(x=age, y=charges, color= sex))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Age x Charges by sex")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(as1, as2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### age & smoker, charges
+```{r}
+ass1<-ggplot(insurance, aes(x=smoker, y=age, color=smoker)) +
+geom_sina()+
+scale_color_manual(values=c('grey', "gold"))+
+labs(title="Age Distribution by smoker")+
+theme(plot.title = element_text(size=14))
+
+ass2<-ggplot(insurance, aes(x=age, y=charges, color= smoker))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('gold', "grey"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Age x Charges by smoker")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(ass1, ass2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### age & region, charges
+```{r}
+ar1<-ggplot(insurance, aes(x=region, y=age, color=region)) +
+geom_sina()+
+scale_color_manual(values=c('tan1', "tan2", 'tan3', "tan4"))+
+labs(title="Age Distribution by region")+
+theme(plot.title = element_text(size=14))
+
+ar2<-ggplot(insurance, aes(x=age, y=charges, color= region))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('tan1', "tan2", 'tan3', "tan4"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Age x Charges by region")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(ar1, ar2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### Conclusion age
+
 ```{r}
 ordered_Age <- insurance[order(-insurance$age), ]
 
@@ -243,14 +339,15 @@ sex = insurance$sex
 
 sex.freq = table(sex)
 
-pie(sex.freq, col=wes_palette("Darjeeling2")[1:2])
+pie(sex.freq, col=c('hotpink', "royalblue"))
 
 SexBar <- ggplot(insurance) +
-  geom_bar(aes(x=sex), width = 0.5, fill = wes_palette("Darjeeling2")[1:2], color="black") +
+  geom_bar(aes(x=sex), width = 0.5, fill=c('hotpink', "royalblue"), color="black") +
   labs(title="",x="Sex", y="Count") +
   theme_classic()
 
 ggarrange(SexBar)
+
 ```
 
 ```{r} 
@@ -287,6 +384,71 @@ ggarrange(Bmi1, Bmi2, Bmi3, Bmi4,
           ncol = 2,
           nrow = 2)
 ```
+
+#### bmi & sex, charges
+```{r}
+bs1<-ggplot(insurance, aes(x=sex, y=bmi, color=sex)) +
+geom_sina()+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+labs(title="BMI Distribution by sex")+
+theme(plot.title = element_text(size=14))
+
+bs2<-ggplot(insurance, aes(x=bmi, y=charges, color= sex))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="BMI x Charges by sex")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(bs1, bs2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### bmi & smoker, charges
+```{r}
+bss1<-ggplot(insurance, aes(x=smoker, y=bmi, color=smoker)) +
+geom_sina()+
+scale_color_manual(values=c('grey', "gold"))+
+labs(title="BMI Distribution by smoker")+
+theme(plot.title = element_text(size=14))
+
+bss2<-ggplot(insurance, aes(x=bmi, y=charges, color= smoker))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('gold', "grey"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="BMI x Charges by smoker")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(bss1, bss2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### bmi & region, charges
+```{r}
+br1<-ggplot(insurance, aes(x=region, y=bmi, color=region)) +
+geom_sina()+
+scale_color_manual(values=c('tan1', "tan2", 'tan3', "tan4"))+
+labs(title="BMI Distribution by region")+
+theme(plot.title = element_text(size=14))
+
+br2<-ggplot(insurance, aes(x=bmi, y=charges, color= region))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('tan1', "tan2", 'tan3', "tan4"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="BMI x Charges by region")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(br1, br2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### Conclusion bmi
 
 ```{r}
 ordered_Bmi <- insurance[order(-insurance$bmi), ]
@@ -327,6 +489,69 @@ ggarrange(Child1, Child2, Child3, Child4,
           nrow = 2)
 ```
 
+#### children & sex, charges
+```{r}
+cs1<-ggplot(insurance, aes(x=sex, y=children, color=sex)) +
+geom_sina()+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+labs(title="Children Distribution by sex")+
+theme(plot.title = element_text(size=14))
+
+cs2<-ggplot(insurance, aes(x=children, y=charges, color= sex))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('hotpink', "royalblue"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Children x Charges by sex")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(cs1, cs2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### children & smoker, charges
+```{r}
+css1<-ggplot(insurance, aes(x=smoker, y=children, color=smoker)) +
+geom_sina()+
+scale_color_manual(values=c('grey', "gold"))+
+labs(title=" Children Distribution by smoker")+
+theme(plot.title = element_text(size=14))
+
+css2<-ggplot(insurance, aes(x=children, y=charges, color= smoker))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('gold', "grey"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Children x Charges by smoker")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(css1, css2,
+          ncol = 2,
+          nrow = 1)
+```
+
+#### children & region, charges
+```{r}
+cr1<-ggplot(insurance, aes(x=region, y=children, color=region)) +
+geom_sina()+
+scale_color_manual(values=c('tan1', "tan2", 'tan3', "tan4"))+
+labs(title="Children Distribution by region")+
+theme(plot.title = element_text(size=14))
+
+cr2<-ggplot(insurance, aes(x=children, y=charges, color= region))+
+geom_jitter(alpha=0.3, size=2.5)+
+scale_color_manual(values=c('tan1', "tan2", 'tan3', "tan4"))+
+geom_rug()+
+geom_smooth(method=lm, formula=y~x)+
+labs(title="Children x Charges by region")+
+theme(plot.title = element_text(size=14))
+
+ggarrange(cr1, cr2,
+          ncol = 2,
+          nrow = 1)
+```
+
 ### Smoker
 ```{r}
 mode = function(){
@@ -339,10 +564,10 @@ smoker = insurance$smoker
 
 smoker.freq = table(smoker)
 
-pie(smoker.freq, col=wes_palette("Darjeeling2")[3:4])
+pie(smoker.freq, col=c('grey', "gold"))
 
 SmokerBar <- ggplot(insurance) +
-  geom_bar(aes(x=smoker), width = 0.5, fill = wes_palette("Darjeeling2")[3:4], color="black") +
+  geom_bar(aes(x=smoker), width = 0.5, fill = c('grey', "gold"), color="black") +
   labs(title="",x="Smoker", y="Count") +
   theme_classic()
 
@@ -366,82 +591,37 @@ region = insurance$region
 
 region.freq = table(region)
 
-pie(region.freq, col = wes_palette("Zissou1")[1:4])
+pie(region.freq, col = c('tan1', "tan2", 'tan3', "tan4"))
 
 RegionBar <- ggplot(insurance) +
-  geom_bar(aes(x=region), width = 0.5, fill = wes_palette("Zissou1")[1:4], color="black") +
+  geom_bar(aes(x=region), width = 0.5, fill=c('tan1', "tan2", 'tan3', "tan4"), color="black") +
   labs(title="",x="Region", y="Count") +
   theme_classic()
 
 ggarrange(RegionBar)
 ```
 
+
 # Correlation
-
-```{r}
-plot(charges ~ bmi, data = insurance)
-```
-
-```{r}
-plot(charges ~ age, data = insurance)
-```
 
 ```{r}
 cor(insurance$charges, insurance$bmi)
 ```
 
+There is no relationship between bmi and charges
+
+
 ```{r}
 cor(insurance$charges, insurance$age)
 ```
+
+There is no relationship between age and charges
 
 ```{r}
 cor(insurance$charges, insurance$children)
 ```
 
-```{r}
-freq(insurance$region,
-  report.nas = FALSE, # remove NA information
-  totals = FALSE, # remove totals
-  cumul = FALSE, # remove cumuls
-  headings = FALSE # remove headings
-)
-```
-
-```{r}
-freq(insurance$smoker,
-  report.nas = FALSE, # remove NA information
-  totals = FALSE, # remove totals
-  cumul = FALSE, # remove cumuls
-  headings = FALSE # remove headings
-)
-```
-
-```{r}
-freq(insurance$sex,
-  report.nas = FALSE, # remove NA information
-  totals = FALSE, # remove totals
-  cumul = FALSE, # remove cumuls
-  headings = FALSE # remove headings
-)
-```
-
-```{r}
-ctable(
-  x = insurance$smoker,
-  y = insurance$region,
-  chisq = TRUE, # display results of Chi-square test of independence
-  headings = FALSE # remove headings
-)
-```
-
-```{r}
-ctable(
-  x = insurance$smoker,
-  y = insurance$sex,
-  chisq = TRUE, # display results of Chi-square test of independence
-  headings = FALSE # remove headings
-)
-```
+There is no relationship between children and charges
 
 ```{r}
 aggregate(cbind(age, bmi, charges) ~ region + smoker,
@@ -450,6 +630,17 @@ aggregate(cbind(age, bmi, charges) ~ region + smoker,
 )
 ```
 
+# Statistical tests
 
 
-# Conclusion
+
+
+
+# Regression
+
+
+
+
+
+
+
