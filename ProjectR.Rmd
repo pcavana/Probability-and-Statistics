@@ -604,6 +604,8 @@ ggarrange(RegionBar)
 
 # Correlation
 
+Correlation is a statistical measure that expresses the extent to which two variables are linearly related.
+
 ```{r}
 cor(insurance$charges, insurance$bmi)
 ```
@@ -630,11 +632,119 @@ aggregate(cbind(age, bmi, charges) ~ region + smoker,
 )
 ```
 
-# Statistical tests
+```{r}
+shapiro.test(insurance$charges)
+
+shapiro.test(insurance$age)
+```
+
+Low p-values so we reject the null hypothesis of normality.
+
+```{r}
+cor.test(insurance$charges, insurance$age, method="kendall")
+```
+
+Significant correlation. 0.47
 
 
+# Tests
+
+```{r}
+t.test(insurance$bmi, mu = 30, 
+       alternative="two.sided") # (one-tailed test)
+```
+
+The null hypothesis is mean = 30. 
+The p-value is less than a significance level of 5%.
+So we can reject the null hipothesis of mean = 30, and this means that the mean bmi is significantly different from 30.
+
+Shapiro test to see if it's normally distributed.
+```{r}
+shapiro.test(insurance$bmi)
+```
+
+It is not normally distributed, so we use Wilcoxon test
+
+```{r}
+wilcox.test(insurance$bmi, mu = 30,  
+            alternative="two.sided") # assuming the distribution is simetricaly aroud median
+```
+
+With p-value is less then 5%, I can reject the null hypothesis of mean = 30. 
+The mean is statisticaly different from 30.
+
+Is the male bmi mean equal to the female bmi mean?
+```{r}
+var.test(insurance[which(insurance$sex=="male"), "bmi"], 
+         insurance[which(insurance$sex=="female"), "bmi"])
+```
+
+The null hypothesis is same variance. 
+The p-values greater then the significance level of 0.05 allows us to accept the null hipothesis of two normal samples with same variance. 
+
+t-test 
+```{r}
+t.test(insurance[which(insurance$sex=="male"), "bmi"],
+       insurance[which(insurance$sex=="female"), "bmi"], 
+       alternative="two.sided", 
+       var.equal= TRUE)
+```
+
+p-value greater than 0.05 so we can accept the null hypothesis of equal average bmi (not significantly different) between men and women.
+
+Shapiro Test for variable male
+```{r}
+shapiro.test(insurance[which(insurance$sex=="male"), "bmi"])
+```
+
+Shapiro Test for variable male
+```{r}
+shapiro.test(insurance[which(insurance$sex=="female"), "bmi"])
+```
+
+The p-value smaller then 0.05 for both cases so we reject the null hipothesis of normally distribution.
+
+Wilcoxon test
+```{r}
+wilcox.test(insurance[which(insurance$sex=="male"), "bmi"], 
+            insurance[which(insurance$sex=="female"), "bmi"])
+```
+
+p-value greater then 5 % allow us to accept the null hipothesis of median bmi equal (not significantly diferent) for man and women.
+
+## Anova Test
+Test of the hypothesis used to determine whether there is a significant statistical difference between the averages of three or more groups of continuous data with respect to a category that differentiates them.
+
+```{r}
+anova<-aov(bmi ~ smoker,  data=insurance)
+summary(anova)
+```
+
+The p-value is 0.891, so we can't reject the null hypothesis of equal means.
+
+```{r}
+shapiro.test(x=residuals(object = anova))
+```
+
+```{r}
+kruskal.test(bmi ~ smoker,  data=insurance)
+```
 
 
+```{r}
+anova2<-aov(bmi ~ region,  data=insurance)
+summary(anova2)
+```
+
+Low p-value, so we can reject the null hypothesis of equal means.
+
+```{r}
+shapiro.test(x=residuals(object = anova2))
+```
+
+```{r}
+kruskal.test(bmi ~ region,  data=insurance)
+```
 
 # Regression
 
