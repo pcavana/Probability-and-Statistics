@@ -1,4 +1,25 @@
-# Data Science
-All my projects made during the master’s degree in data science.
+# Foundations of Probability and Statistics
 
-![uriel-sc-11KDtiUWRq4-unsplash](https://user-images.githubusercontent.com/92382378/197268650-1ba2a887-c05e-47f9-a30c-646591e2287a.jpg)
+Project for the 'Foundations of Probability and Statistics' course 
+
+-- Project status: [In Progress]
+
+## About
+
+The project is composed by an analysis of an existing case. Students should demonstrate the ability to apply the main subjects
+(descriptive analysis, tests, linear model).
+
+ (maximum score 6)
+ 
+ Main goal of this analysis is to predict insurance costs for customers through dataset "insurance.csv".
+
+Technologies:
+
+- R
+- Rstudio
+- R Markdown
+
+## Contributing Members
+
+- Paola Cavana
+- Julia Tsymbal
