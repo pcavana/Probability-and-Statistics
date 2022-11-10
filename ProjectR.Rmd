@@ -70,6 +70,7 @@ BMI range (kg/m2).
 - install.packages("wesanderson")
 - install.packages("modest")
 - install.packages("MASS")
+- install.packages("summarytools")
 
 ```{r}
 library(ggplot2) 
@@ -79,6 +80,7 @@ library(RColorBrewer)
 library(wesanderson) 
 library(modest)
 library(MASS)
+library(summarytools)
 ```
 
 # Data Exploration
@@ -132,6 +134,9 @@ The result of this function does not return lines, therefore inside the dataset 
 # Descriptive Statistics
 
 Let’s proceed with the descriptive analysis of the dataset. 
+```{r} 
+dfSummary(insurance) 
+```
 
 ```{r} 
 summary(insurance) 
@@ -376,5 +381,75 @@ ggarrange(RegionBar)
 ```{r}
 plot(charges ~ bmi, data = insurance)
 ```
+
+```{r}
+plot(charges ~ age, data = insurance)
+```
+
+```{r}
+cor(insurance$charges, insurance$bmi)
+```
+
+```{r}
+cor(insurance$charges, insurance$age)
+```
+
+```{r}
+cor(insurance$charges, insurance$children)
+```
+
+```{r}
+freq(insurance$region,
+  report.nas = FALSE, # remove NA information
+  totals = FALSE, # remove totals
+  cumul = FALSE, # remove cumuls
+  headings = FALSE # remove headings
+)
+```
+
+```{r}
+freq(insurance$smoker,
+  report.nas = FALSE, # remove NA information
+  totals = FALSE, # remove totals
+  cumul = FALSE, # remove cumuls
+  headings = FALSE # remove headings
+)
+```
+
+```{r}
+freq(insurance$sex,
+  report.nas = FALSE, # remove NA information
+  totals = FALSE, # remove totals
+  cumul = FALSE, # remove cumuls
+  headings = FALSE # remove headings
+)
+```
+
+```{r}
+ctable(
+  x = insurance$smoker,
+  y = insurance$region,
+  chisq = TRUE, # display results of Chi-square test of independence
+  headings = FALSE # remove headings
+)
+```
+
+```{r}
+ctable(
+  x = insurance$smoker,
+  y = insurance$sex,
+  chisq = TRUE, # display results of Chi-square test of independence
+  headings = FALSE # remove headings
+)
+```
+
+```{r}
+aggregate(cbind(age, bmi, charges) ~ region + smoker,
+  data = insurance,
+  mean
+)
+```
+
+
 
 # Conclusion
