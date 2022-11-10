@@ -602,51 +602,6 @@ ggarrange(RegionBar)
 ```
 
 
-# Correlation
-
-Correlation is a statistical measure that expresses the extent to which two variables are linearly related.
-
-```{r}
-cor(insurance$charges, insurance$bmi)
-```
-
-There is no relationship between bmi and charges
-
-
-```{r}
-cor(insurance$charges, insurance$age)
-```
-
-There is no relationship between age and charges
-
-```{r}
-cor(insurance$charges, insurance$children)
-```
-
-There is no relationship between children and charges
-
-```{r}
-aggregate(cbind(age, bmi, charges) ~ region + smoker,
-  data = insurance,
-  mean
-)
-```
-
-```{r}
-shapiro.test(insurance$charges)
-
-shapiro.test(insurance$age)
-```
-
-Low p-values so we reject the null hypothesis of normality.
-
-```{r}
-cor.test(insurance$charges, insurance$age, method="kendall")
-```
-
-Significant correlation. 0.47
-
-
 # Tests
 
 ```{r}
@@ -745,6 +700,49 @@ shapiro.test(x=residuals(object = anova2))
 ```{r}
 kruskal.test(bmi ~ region,  data=insurance)
 ```
+
+## Correlation
+
+Correlation is a statistical measure that expresses the extent to which two variables are linearly related.
+
+```{r}
+cor(insurance$charges, insurance$bmi)
+```
+
+There is no relationship between bmi and charges
+
+```{r}
+cor(insurance$charges, insurance$age)
+```
+
+There is no relationship between age and charges
+
+```{r}
+cor(insurance$charges, insurance$children)
+```
+
+There is no relationship between children and charges
+
+```{r}
+aggregate(cbind(age, bmi, charges) ~ region + smoker,
+  data = insurance,
+  mean
+)
+```
+
+```{r}
+shapiro.test(insurance$charges)
+
+shapiro.test(insurance$age)
+```
+
+Low p-values so we reject the null hypothesis of normality.
+
+```{r}
+cor.test(insurance$charges, insurance$age, method="kendall")
+```
+
+Significant correlation. 0.47
 
 # Regression
 
