@@ -217,6 +217,7 @@ head(ordered_Charges)
 tail(ordered_Charges)
 ```
 
+
 ```{r}
 boxplot.stats(insurance$charges)
 ```
@@ -554,13 +555,19 @@ ggarrange(cr1, cr2,
           nrow = 1)
 ```
 
+Function for mode computation
+```{r}
+mode <- function(att){
+    return(sort(-table(att))[1])
+}
+```
+
+
 ### Smoker
 ```{r}
-mode = function(){
-    return(sort(-table(insurance$smoker))[1])
-}
+
  
-mode()
+mode(insurance$smoker)
 
 smoker = insurance$smoker
 
@@ -583,11 +590,8 @@ table(insurance$smoker)
 
 ### Region
 ```{r}
-mode = function(){
-    return(sort(-table(insurance$region))[1])
-}
- 
-mode()
+
+mode(insurance$region)
 
 region = insurance$region
 
@@ -606,6 +610,8 @@ ggarrange(RegionBar)
 
 # Tests
 
+**Is it the mean equal to 30?**
+
 ```{r}
 t.test(insurance$bmi, mu = 30, 
        alternative="two.sided") # (one-tailed test)
@@ -615,7 +621,8 @@ The null hypothesis is mean = 30.
 The p-value is less than a significance level of 5%.
 So we can reject the null hipothesis of mean = 30, and this means that the mean bmi is significantly different from 30.
 
-Shapiro test to see if it's normally distributed.
+**Shapiro test to see if it's normally distributed.**
+
 ```{r}
 shapiro.test(insurance$bmi)
 ```
@@ -627,10 +634,12 @@ wilcox.test(insurance$bmi, mu = 30,
             alternative="two.sided") # assuming the distribution is simetricaly aroud median
 ```
 
-With p-value is less then 5%, I can reject the null hypothesis of mean = 30. 
-The mean is statisticaly different from 30.
+With p-value is less then 5%, we can reject the null hypothesis of mean = 30. 
+The mean is statistical different from 30.
 
-Is the male bmi mean equal to the female bmi mean?
+
+**Is the male bmi variance equal to the female bmi variance?**
+
 ```{r}
 var.test(insurance[which(insurance$sex=="male"), "bmi"], 
          insurance[which(insurance$sex=="female"), "bmi"])
@@ -639,7 +648,8 @@ var.test(insurance[which(insurance$sex=="male"), "bmi"],
 The null hypothesis is same variance. 
 The p-values greater then the significance level of 0.05 allows us to accept the null hipothesis of two normal samples with same variance. 
 
-t-test 
+**t-test**
+
 ```{r}
 t.test(insurance[which(insurance$sex=="male"), "bmi"],
        insurance[which(insurance$sex=="female"), "bmi"], 
@@ -649,19 +659,23 @@ t.test(insurance[which(insurance$sex=="male"), "bmi"],
 
 p-value greater than 0.05 so we can accept the null hypothesis of equal average bmi (not significantly different) between men and women.
 
-Shapiro Test for variable male
+
+**Shapiro Test for variable male**
+
 ```{r}
 shapiro.test(insurance[which(insurance$sex=="male"), "bmi"])
 ```
 
-Shapiro Test for variable male
+**Shapiro Test for variable male**
+
 ```{r}
 shapiro.test(insurance[which(insurance$sex=="female"), "bmi"])
 ```
 
 The p-value smaller then 0.05 for both cases so we reject the null hipothesis of normally distribution.
 
-Wilcoxon test
+**Wilcoxon test**
+
 ```{r}
 wilcox.test(insurance[which(insurance$sex=="male"), "bmi"], 
             insurance[which(insurance$sex=="female"), "bmi"])
@@ -673,7 +687,7 @@ p-value greater then 5 % allow us to accept the null hipothesis of median bmi eq
 Test of the hypothesis used to determine whether there is a significant statistical difference between the averages of three or more groups of continuous data with respect to a category that differentiates them.
 
 
-Smoker
+**Smoker**
 
 ```{r}
 anova<-aov(bmi ~ smoker,  data=insurance)
@@ -686,12 +700,17 @@ The p-value is 0.891, so we can't reject the null hypothesis of equal means.
 shapiro.test(x=residuals(object = anova))
 ```
 
+**Kruskal Wallis**
+
+The Kruskal–Wallis test by ranks or one-way ANOVA on ranks is a non-parametric method for testing whether samples originate from the same distribution. It is used for comparing two or more independent samples of equal or different sample sizes. The parametric equivalent of the Kruskal–Wallis test is the one-way analysis of variance (ANOVA).
+
 ```{r}
 kruskal.test(bmi ~ smoker,  data=insurance)
 ```
+The p-value is greater then 0.05 so we can conclude that there aren't significant differences between the treatment groups.
 
 
-Region
+**Region**
 
 ```{r}
 anova2<-aov(bmi ~ region,  data=insurance)
@@ -716,19 +735,22 @@ Correlation is a statistical measure that expresses the extent to which two vari
 cor(insurance$charges, insurance$bmi)
 ```
 
-There is no relationship between bmi and charges
+There is no correlation between bmi and charges.
+
 
 ```{r}
 cor(insurance$charges, insurance$age)
 ```
 
-There is no relationship between age and charges
+There is a low correlation between age and charges.
+
 
 ```{r}
 cor(insurance$charges, insurance$children)
 ```
 
-There is no relationship between children and charges
+There is no correlation between children and charges
+
 
 ```{r}
 aggregate(cbind(age, bmi, charges) ~ region + smoker,
@@ -737,6 +759,7 @@ aggregate(cbind(age, bmi, charges) ~ region + smoker,
 )
 ```
 
+
 ```{r}
 shapiro.test(insurance$charges)
 
@@ -744,6 +767,7 @@ shapiro.test(insurance$age)
 ```
 
 Low p-values so we reject the null hypothesis of normality.
+
 
 ```{r}
 cor.test(insurance$charges, insurance$age, method="kendall")
@@ -788,7 +812,7 @@ While the correlation measures the force on relationship, the coefficient quanti
 
 Here, for example, for each additional unit in age, the expected average cost is 257.12 higher, after controlling the others variables.
 
-### Assumptions of Linear Regression and options fon non-linear relationship
+### Assumptions of Linear Regression 
 
 This method assumes that there is a linear relationship between predictors and outcome. The parameters will be estimated in order to give the best-fitted line, minimizing the sum of squared residuals (Ordinary Least Squares method). Linear regression has the advantage of interpretability, but there are some important checks to make.
 
@@ -824,3 +848,12 @@ durbinWatsonTest(regr)
 
 Analyzing the test results we observe that the value of the Durbin-Watson coefficient is close to 2, that indicates the autocorrelation non-presence. 
 To confirm this, the p-value is higher than the threshold value of 0.05; which does not allow us to reject the hypothesis that the residues are unrelated.
+
+
+## Conclusion
+
+At this point, we can consider the analysis finished. Thanks to the development of this analysis. we explored which variables such as: age, sex, children, smoking, bmi index affect for price of insurance in the region where data was collected.
+
+For each attribute we did basic statistical analysis which help us understand relationship and effect caused on insurance charges. We notice that if an individual smoke and have an high bmi index, charges increase as well. Other consideration is that, aging and smoking affects the increase of charges.
+
+During this analysis we built a regression model. The goal of linear regression is to find an equation to show the mathematical relationship between predictors and outcome.  As a result, the accuracy of this method is quite low, this indicates that the attributes of the dataset do not correlate linearly, but have a non-linear dependence. therefore, it will be appropriate to use non-linear models for further research.
