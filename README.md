@@ -2,7 +2,7 @@
 
 Project for the 'Foundations of Probability and Statistics' course 
 
--- Project status: [In Progress]
+-- Project status: [Completed]
 
 ## About
 
