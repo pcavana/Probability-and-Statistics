@@ -75,6 +75,7 @@ BMI range (kg/m2).
 - install.packages("tidyverse")
 - install.packages("patchwork")
 - install.packages("ggforce")
+- install.packages("car")
 
 ```{r}
 library(ggplot2) 
@@ -89,6 +90,7 @@ library(caret)
 library(tidyverse)
 library(patchwork)
 library(ggforce)
+library(car)
 ```
 
 
@@ -670,6 +672,9 @@ p-value greater then 5 % allow us to accept the null hipothesis of median bmi eq
 ## Anova Test
 Test of the hypothesis used to determine whether there is a significant statistical difference between the averages of three or more groups of continuous data with respect to a category that differentiates them.
 
+
+Smoker
+
 ```{r}
 anova<-aov(bmi ~ smoker,  data=insurance)
 summary(anova)
@@ -685,6 +690,8 @@ shapiro.test(x=residuals(object = anova))
 kruskal.test(bmi ~ smoker,  data=insurance)
 ```
 
+
+Region
 
 ```{r}
 anova2<-aov(bmi ~ region,  data=insurance)
@@ -742,13 +749,78 @@ Low p-values so we reject the null hypothesis of normality.
 cor.test(insurance$charges, insurance$age, method="kendall")
 ```
 
-Significant correlation. 0.47
+The low p-value would let us believe on a significant correlation. 0.47 can be considered a weak correlation.
+
 
 # Regression
 
+A linear regression is a statistical model that analyzes the relationship between a response variable (often called y) and one or more variables and their interactions (often called x or explanatory variables). You make this kind of relationships in your head all the time, for example when you calculate the age of a child based on her height, you are assuming the older she is, the taller she will be. 
+
+```{r}
+set.seed(703) #set seed (value) where value specifies the initial value of the random number seed.
+
+training <- createDataPartition(insurance$charges, times=1, p=0.75, list=FALSE) 
+
+data_regr<-insurance[training,]
+data_test<-insurance[-training,]
+
+regr <- lm(charges ~ age+sex+bmi+children+smoker, data = data_regr)
+
+summary(regr)
+```
+
+```{r}
+regr_pred<-predict(regr, data_test)
+
+RMSE(regr_pred, data_test$charges)
+
+R2(regr_pred, data_test$charges)
+```
+
+P-value of F-statistics is very low, so at least one predictor is really related to the outcome.
+Besides the rmse of 5,853 and the r squared of 78%. Let's pay atttention to the coefficients (column Estimate) and their significance levels:
+The intercept is -11979.14, and almost all the predictors (except sex) are significant, according to the p-values.
+
+The interpretation of categorical variables, for example, "smoker", can be done like this: " the average charge increases 23519.69 if the individual smokes - with all other variables constant.
+
+The coefficient value, when significant, is the average change on outcome with a unit increase on a predictor - with the others constant.
+While the correlation measures the force on relationship, the coefficient quantifies the relationship and allows predictions with an equation.
+
+Here, for example, for each additional unit in age, the expected average cost is 257.12 higher, after controlling the others variables.
+
+### Assumptions of Linear Regression and options fon non-linear relationship
+
+This method assumes that there is a linear relationship between predictors and outcome. The parameters will be estimated in order to give the best-fitted line, minimizing the sum of squared residuals (Ordinary Least Squares method). Linear regression has the advantage of interpretability, but there are some important checks to make.
+
+Let's check some assumptions of linear regression:
+- Linearity of data, linear relationship between x and y: Residuals x Fitted plot
+- Normality of residuals: Normal QQ plot
+- Homogeneity of residuals variance (homoscedasticity), residuals with constant variance: scale location plot
+
+```{r}
+options(repr.plot.width=20, repr.plot.height=20)
+
+par(mfrow=c(1,1))
+
+plot(regr)
+```
+
+At Residuals x Fitted plot, the non horizontal line may indicate a non-linear relationship.
+
+The Normal Q-Q plot is used to verify the normal distribution of the pattern residues. On the x-axis we find theoretical quantiles, on the y-axis we find standardized residues.We see that the residuals are not exactly on the straight line, indicating that they are not normally distributed.
+
+Scale-Location plot allows to display on the x-axis the values of the model regression and on the y axis the square root of standardized residues. The non straight line indicates heteroscedasticity.
+
+To investigate the presence of outliers in the residues we analyze the graph Residuals vs Leverage. Leverage scores are between 0 and 1. A high leverage score is therefore close to 1. In our case the residues are between leverage scores between 0.00 and 0.02. From the graph we observe how residues are contained in the range -2 to 4. 
 
 
+### Durbin Watson Test
 
+We use the Durbin Watson coefficient to check for autocorrelation between residues. This coefficient is between 0 and 4. Values close to 2 indicate that there is no autocorrelation.
 
+```{r}
+durbinWatsonTest(regr)
+```
 
-
+Analyzing the test results we observe that the value of the Durbin-Watson coefficient is close to 2, that indicates the autocorrelation non-presence. 
+To confirm this, the p-value is higher than the threshold value of 0.05; which does not allow us to reject the hypothesis that the residues are unrelated.
