@@ -850,7 +850,7 @@ Analyzing the test results we observe that the value of the Durbin-Watson coeffi
 To confirm this, the p-value is higher than the threshold value of 0.05; which does not allow us to reject the hypothesis that the residues are unrelated.
 
 
-## Conclusion
+# Conclusion
 
 At this point, we can consider the analysis finished. Thanks to the development of this analysis. we explored which variables such as: age, sex, children, smoking, bmi index affect for price of insurance in the region where data was collected.
 
