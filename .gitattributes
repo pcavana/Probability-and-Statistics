@@ -10,6 +10,9 @@
 *.Rd    text
 *.Rdx   binary
 *.Rmd	  text
+*.pdf   diff=astextplain
+*.PDF   diff=astextplain
+*.csv   text
 *.R  	  text
 *.Rproj text
 *.[Rr]md   linguist-detectable
