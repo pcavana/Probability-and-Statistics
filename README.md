@@ -2,6 +2,8 @@
 
 Project for the 'Foundations of Probability and Statistics' course 
 
+![Health insurance policies](https://user-images.githubusercontent.com/92382378/204280112-1c971b2d-de38-4823-8b98-2909503bef3e.jpg)
+
 -- Project status: [Completed]
 
 ## About
